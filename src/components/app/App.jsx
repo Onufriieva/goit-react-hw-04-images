@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {useState, useEffect} from "react";
 import Modal from "components/modal/Modal";
 import ImageGallery from "components/imageGallery/ImageGallery";
 import Searchbar from "components/searchbar/Searchbar";
@@ -9,88 +9,81 @@ import Button from "components/button/Button";
 
 
 
+export function App () {
+const [images, setImages] = useState([]);
+const [loading, setLoading] = useState(false);
+// const [error, setError] = useState(null);
+const [name, setName] = useState('');
+const [page, setPage] = useState(1);
+const [showModal, setShowModal] = useState(false);
+const [modalContent, setModalContent] = useState('');
 
 
-export class App extends Component {
-state = {
-  images: [],
-  loading: false,
-  error: null,
-  name: '',
-  page: 1,
-  showModal: false,
-  modalContent: '',
+
+useEffect(() => {
+  if(name) {    
+    fetchImages(name, page).then(response => {
+      setImages(prev => [...prev, ...response]); 
+   })
+  }
+}, [name, page])
+
+
+
+
+const handleChangeState = (name) => {
+ setImages([]);
+setName(name);
+setLoading(false)
+setPage(1)
 };
 
-componentDidUpdate(prevProps, prevState) {
-  const prevName = prevState.name;
-  const nextName = this.state.name;
-  const { name, page } = this.state;
-  if (prevProps.name !== this.props.name) {
-    this.handleChangeState();
-  }
-  if (prevName !== nextName) {
-    this.fetchImages(name, page).then(response => {
-      this.setState({ images: response, page: page + 1, loading: false });
-    });
-  }
-}
 
-handleChangeState = ({ name }) => {
-  this.setState({ name: name, page: 1, loading: true });
-};
 
-fetchImages = async (name, page) => {
+const fetchImages = async (name, page) => {
   try {
     const response = await axios.get(
       `https://pixabay.com/api/?q=${name}&page=${page}&key=29221253-dd17a46566e1be23f7ca8ff9b&image_type=photo&orientation=horizontal&per_page=12`
     );
     return response.data.hits;
   } catch (error) {
-    console.error(error);
+    console.log(error);
+  } finally {
+    setLoading(false);
   }
 };
 
-handleLoadMoreBtn = () => {
-  const { name, page } = this.state;
-  this.setState({ loading: true });
-  this.fetchImages(name, page).then(response => {
-    this.setState(prevState => ({
-      images: [...prevState.images, ...response],
-      page: prevState.page + 1,
-      loading: false,
-    }));
-  });
+
+const handleLoadMoreBtn = () => {
+  setPage((prev) => {return prev + 1});
+  setLoading(false);       
 };
 
-closeModal = () => {
-  this.setState({
-    showModal: false,
-    modalContent: '',
-  });
+
+const closeModal = () => {
+  setShowModal(false);
+  setModalContent('');
 };
 
-openModal = largeImg => {
-  this.setState({
-    showModal: true,
-    modalContent: largeImg,
-  });
+
+const openModal = largeImg => {
+  setShowModal(true);
+  setModalContent(largeImg); 
 };
 
-render() {
-  const { images, loading, showModal, modalContent } = this.state;
+
+ 
   return (
     <StyledApp>
-      <Searchbar onSubmit={this.handleChangeState}></Searchbar>
-      <ImageGallery images={images} onClick={this.openModal}></ImageGallery>
+      <Searchbar onSubmit={handleChangeState}></Searchbar>
+      <ImageGallery images={images} onClick={openModal}></ImageGallery>
       {loading && <Loader />}
-      {images.length > 0 && <Button onClick={this.handleLoadMoreBtn} />}
+      {images.length > 0 && <Button onClick={handleLoadMoreBtn} />}
       {showModal && (
-        <Modal onClose={this.closeModal}>
+        <Modal onClose={closeModal}>
           <img src={modalContent} alt="" />
         </Modal>
       )}
     </StyledApp>
   );
-}
 }

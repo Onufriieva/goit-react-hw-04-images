@@ -1,41 +1,36 @@
 import PropTypes from 'prop-types';
-import { Component } from 'react';
-import {
-  SearchbarHeader,
-  SearchForm,
-  SearchBtn,
-  SearchFormBtnLabel,
-  SearchInput,
-} from './SearchbarStyled';
+import { useState } from 'react';
+import {ReactComponent as Loop} from '../../svg/loop.svg'
+import {SearchbarHeader, SearchForm, SearchBtn, SearchInput} from './SearchbarStyled';
 
-export default class Searchbar extends Component {
-  state = {
-    name: '',
+export default function Searchbar ({ onSubmit }) {
+const [name, setName] = useState("");
+
+
+  const handleChange = e => {
+    const {value} = e.target;
+    setName(value);
   };
 
-  handleChange = e => {
-    this.setState({ [e.target.name]: e.target.value });
-  };
-
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-    this.props.onSubmit({ ...this.state });
-    this.setState({ name: '' });
+    onSubmit(name);
+    setName('');
   };
 
-  render() {
+  
     return (
       <SearchbarHeader>
-        <SearchForm onSubmit={this.handleSubmit}>
-          <SearchBtn type="submit">
-            <SearchFormBtnLabel>Search</SearchFormBtnLabel>
+        <SearchForm onSubmit={handleSubmit}>
+          <SearchBtn type="submit" aria-label="Search loop">
+          <Loop />
           </SearchBtn>
 
           <SearchInput
-            onChange={this.handleChange}
+            onChange={handleChange}
             name="name"
             type="text"
-            value={this.state.name}
+            value={name}
             autoComplete="off"
             autoFocus
             placeholder="Search images and photos"
@@ -44,7 +39,7 @@ export default class Searchbar extends Component {
       </SearchbarHeader>
     );
   }
-}
+
 
 Searchbar.propTypes = {
   onSubmit: PropTypes.func.isRequired,
