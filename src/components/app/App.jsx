@@ -12,7 +12,7 @@ import Button from "components/button/Button";
 export function App () {
 const [images, setImages] = useState([]);
 const [loading, setLoading] = useState(false);
-const [error, setError] = useState(null);
+const [setError] = useState(null);
 const [name, setName] = useState('');
 const [page, setPage] = useState(1);
 const [showModal, setShowModal] = useState(false);
