@@ -12,7 +12,7 @@ import Button from "components/button/Button";
 export function App () {
 const [images, setImages] = useState([]);
 const [loading, setLoading] = useState(false);
-// const [error, setError] = useState(null);
+const [error, setError] = useState(null);
 const [name, setName] = useState('');
 const [page, setPage] = useState(1);
 const [showModal, setShowModal] = useState(false);
@@ -21,10 +21,13 @@ const [modalContent, setModalContent] = useState('');
 
 
 useEffect(() => {
-  if(name) {    
+  if(name) { 
+    setLoading(true)   
     fetchImages(name, page).then(response => {
       setImages(prev => [...prev, ...response]); 
    })
+   .catch(error => {setError(error)})
+   .finally(setLoading(false))
   }
 }, [name, page])
 
@@ -32,10 +35,9 @@ useEffect(() => {
 
 
 const handleChangeState = (name) => {
- setImages([]);
-setName(name);
-setLoading(false)
-setPage(1)
+  setImages([]);
+  setName(name);
+  setPage(1)
 };
 
 
